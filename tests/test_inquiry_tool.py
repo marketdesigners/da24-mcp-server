@@ -74,6 +74,7 @@ async def test_handle_create_inquiry_success():
     data = json.loads(result)
     assert data["success"] is True
     assert data["inquiry_id"] == "enc-idx-123"
+    mock_repo.update_usage.assert_called_once_with("valid-key")
 
 @pytest.mark.asyncio
 async def test_handle_create_inquiry_invalid_key():

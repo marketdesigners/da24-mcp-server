@@ -77,12 +77,15 @@ async def handle_create_inquiry(
                 f"{settings.da24_api_url.rstrip('/')}/move/inquiry",
                 json=payload,
             )
-    except (httpx.TimeoutException, httpx.NetworkError) as e:
+    except httpx.RequestError as e:
         logger.error("da24 API call failed: %s", str(e))
         return json.dumps({"success": False, "error": "da24 API 호출 실패"})
 
     if resp.status_code == 201:
-        inquiry_id = resp.json().get("idx", "")
+        try:
+            inquiry_id = resp.json().get("idx", "")
+        except Exception:
+            inquiry_id = ""
         # 3. 사용량 업데이트
         conn2 = get_connection()
         try:
@@ -92,7 +95,10 @@ async def handle_create_inquiry(
         logger.info("Inquiry created: %s by %s", inquiry_id, key_info["name"])
         return json.dumps({"success": True, "inquiry_id": inquiry_id})
     elif resp.status_code == 400:
-        error_msg = resp.json().get("error", "알 수 없는 오류")
+        try:
+            error_msg = resp.json().get("error", "알 수 없는 오류")
+        except Exception:
+            error_msg = "알 수 없는 오류"
         logger.error("da24 API 400: %s", error_msg)
         return json.dumps({"success": False, "error": f"접수 실패: {error_msg}"})
     else:
