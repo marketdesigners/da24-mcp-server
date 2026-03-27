@@ -46,5 +46,8 @@ def test_update_usage_increments_count(mock_conn):
 
 def test_set_active_status(mock_conn):
     repo = ApiKeyRepository(mock_conn)
-    repo.set_active("test-key", False)
+    cursor = mock_conn.cursor.return_value.__enter__.return_value
+    cursor.rowcount = 1
+    result = repo.set_active("test-key", False)
+    assert result is True
     mock_conn.commit.assert_called_once()

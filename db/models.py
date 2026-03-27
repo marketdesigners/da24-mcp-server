@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 import pyodbc
 
 class ApiKeyRepository:
@@ -28,6 +27,8 @@ class ApiKeyRepository:
                 new_key, name,
             )
             row = cursor.fetchone()
+            if row is None:
+                raise RuntimeError("INSERT into mcp_api_keys returned no row")
         self._conn.commit()
         return {"key": row[0], "name": row[1], "created_at": str(row[2])}
 
@@ -46,13 +47,15 @@ class ApiKeyRepository:
             for r in rows
         ]
 
-    def set_active(self, key: str, is_active: bool) -> None:
+    def set_active(self, key: str, is_active: bool) -> bool:
         with self._conn.cursor() as cursor:
             cursor.execute(
                 "UPDATE mcp_api_keys SET is_active = ? WHERE [key] = ?",
                 1 if is_active else 0, key,
             )
+            updated = cursor.rowcount > 0
         self._conn.commit()
+        return updated
 
     def update_usage(self, key: str) -> None:
         with self._conn.cursor() as cursor:

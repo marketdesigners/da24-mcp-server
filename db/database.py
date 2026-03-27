@@ -1,8 +1,10 @@
+import threading
 import pyodbc
 from config import settings
 
 _pool: list[pyodbc.Connection] = []
 _POOL_SIZE = 5
+_lock = threading.Lock()
 
 def _create_connection() -> pyodbc.Connection:
     conn_str = (
@@ -16,16 +18,26 @@ def _create_connection() -> pyodbc.Connection:
     return pyodbc.connect(conn_str)
 
 def get_connection() -> pyodbc.Connection:
-    if _pool:
-        return _pool.pop()
+    with _lock:
+        if _pool:
+            return _pool.pop()
     return _create_connection()
 
 def release_connection(conn: pyodbc.Connection) -> None:
-    if len(_pool) < _POOL_SIZE:
-        _pool.append(conn)
-    else:
+    try:
+        conn.rollback()
+    except Exception:
         conn.close()
+        return
+    with _lock:
+        if len(_pool) < _POOL_SIZE:
+            _pool.append(conn)
+        else:
+            conn.close()
 
 def init_pool() -> None:
-    for _ in range(_POOL_SIZE):
-        _pool.append(_create_connection())
+    with _lock:
+        if _pool:
+            return
+        for _ in range(_POOL_SIZE):
+            _pool.append(_create_connection())
