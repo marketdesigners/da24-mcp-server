@@ -1,6 +1,8 @@
 <div align="center">
 
-# da24 MCP Server
+<img src="./assets/logo.png" alt="다이사 MCP" width="120" height="120">
+
+# 다이사 MCP Server
 
 AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있는 MCP 서버입니다.
 
@@ -188,7 +190,7 @@ da24 플랫폼에 이사 견적 문의를 접수합니다.
 }
 ```
 
-> API 키 발급은 [da24.co.kr](https://da24.co.kr) 또는 담당자에게 문의하세요.
+> API 키 발급은 [lonnie@da24.co.kr](mailto:lonnie@da24.co.kr)로 문의하세요.
 
 <br>
 
