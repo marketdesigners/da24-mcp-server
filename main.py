@@ -93,7 +93,7 @@ async def list_tools() -> list[types.Tool]:
 @mcp_server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
     if name == "calculate_estimate":
-        result = handle_calculate_estimate(
+        result = await handle_calculate_estimate(
             items=arguments.get("items", []),
             need_packing=arguments.get("need_packing", False),
         )
@@ -124,7 +124,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         email=arguments.get("email", ""),
         memo=arguments.get("memo", ""),
         mkt_agree=arguments.get("mkt_agree", False),
-    )
+    )  # sido/gugun/sido2/gugun2 누락 시 handle_create_inquiry 내부에서 검증 후 에러 반환
     return [types.TextContent(type="text", text=result)]
 
 
