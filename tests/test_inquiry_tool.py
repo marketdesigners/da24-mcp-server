@@ -69,12 +69,35 @@ async def test_handle_create_inquiry_success():
             tel="010-1234-5678",
             moving_type="가정이사",
             moving_date="2026-04-01",
+            sido="서울",
+            gugun="강남구",
+            sido2="경기",
+            gugun2="성남시",
         )
 
     data = json.loads(result)
     assert data["success"] is True
     assert data["inquiry_id"] == "enc-idx-123"
     mock_repo.update_usage.assert_called_once_with("valid-key")
+
+@pytest.mark.asyncio
+async def test_handle_create_inquiry_missing_location():
+    result = await handle_create_inquiry(
+        api_key="valid-key",
+        name="홍길동",
+        tel="010-1234-5678",
+        moving_type="가정이사",
+        moving_date="2026-04-01",
+        sido="",
+        gugun="",
+        sido2="경기",
+        gugun2="성남시",
+    )
+    data = json.loads(result)
+    assert data["success"] is False
+    assert "sido" in data["error"]
+    assert "gugun" in data["error"]
+
 
 @pytest.mark.asyncio
 async def test_handle_create_inquiry_invalid_key():
@@ -91,6 +114,10 @@ async def test_handle_create_inquiry_invalid_key():
             tel="010-1234-5678",
             moving_type="가정이사",
             moving_date="2026-04-01",
+            sido="서울",
+            gugun="강남구",
+            sido2="경기",
+            gugun2="성남시",
         )
 
     data = json.loads(result)
@@ -124,6 +151,10 @@ async def test_handle_create_inquiry_da24_400():
             tel="010-1234-5678",
             moving_type="가정이사",
             moving_date="2026-04-01",
+            sido="서울",
+            gugun="강남구",
+            sido2="경기",
+            gugun2="성남시",
         )
 
     data = json.loads(result)
@@ -157,6 +188,10 @@ async def test_handle_create_inquiry_da24_500():
             tel="010-1234-5678",
             moving_type="가정이사",
             moving_date="2026-04-01",
+            sido="서울",
+            gugun="강남구",
+            sido2="경기",
+            gugun2="성남시",
         )
 
     data = json.loads(result)
@@ -186,6 +221,10 @@ async def test_handle_create_inquiry_timeout():
             tel="010-1234-5678",
             moving_type="가정이사",
             moving_date="2026-04-01",
+            sido="서울",
+            gugun="강남구",
+            sido2="경기",
+            gugun2="성남시",
         )
 
     data = json.loads(result)

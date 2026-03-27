@@ -73,10 +73,10 @@ async def list_tools() -> list[types.Tool]:
                         "type": "string",
                         "description": "이사 날짜 (YYYY-MM-DD) 또는 'undecided'",
                     },
-                    "sido": {"type": "string", "description": "출발지 시/도 (선택)"},
-                    "gugun": {"type": "string", "description": "출발지 구/군 (선택)"},
-                    "sido2": {"type": "string", "description": "도착지 시/도 (선택)"},
-                    "gugun2": {"type": "string", "description": "도착지 구/군 (선택)"},
+                    "sido": {"type": "string", "description": "출발지 시/도"},
+                    "gugun": {"type": "string", "description": "출발지 구/군"},
+                    "sido2": {"type": "string", "description": "도착지 시/도"},
+                    "gugun2": {"type": "string", "description": "도착지 구/군"},
                     "email": {"type": "string", "description": "이메일 (선택)"},
                     "memo": {"type": "string", "description": "메모 (선택)"},
                     "mkt_agree": {
@@ -84,7 +84,7 @@ async def list_tools() -> list[types.Tool]:
                         "description": "마케팅 수신 동의 (기본 false)",
                     },
                 },
-                "required": ["name", "tel", "moving_type", "moving_date"],
+                "required": ["name", "tel", "moving_type", "moving_date", "sido", "gugun", "sido2", "gugun2"],
             },
         )
     ]
@@ -93,7 +93,7 @@ async def list_tools() -> list[types.Tool]:
 @mcp_server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
     if name == "calculate_estimate":
-        result = handle_calculate_estimate(
+        result = await handle_calculate_estimate(
             items=arguments.get("items", []),
             need_packing=arguments.get("need_packing", False),
         )
@@ -124,7 +124,7 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         email=arguments.get("email", ""),
         memo=arguments.get("memo", ""),
         mkt_agree=arguments.get("mkt_agree", False),
-    )
+    )  # sido/gugun/sido2/gugun2 누락 시 handle_create_inquiry 내부에서 검증 후 에러 반환
     return [types.TextContent(type="text", text=result)]
 
 

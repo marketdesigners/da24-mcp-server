@@ -1,66 +1,49 @@
 import json
 import logging
-from tools.cbm_data import CBM_TABLE, PRICE_TABLE, CBM_THRESHOLD_SMALL, CBM_THRESHOLD_FAMILY
+import httpx
+from config import settings
 
 logger = logging.getLogger(__name__)
 
-
-def calculate_cbm(items: list[dict]) -> tuple[float, list[str]]:
-    """
-    items: [{"item": "침대:퀸", "quantity": 1}, ...]
-    Returns (total_cbm, unknown_items)
-    """
-    total = 0.0
-    unknown = []
-    for entry in items:
-        key = entry.get("item", "").strip()
-        qty = int(entry.get("quantity", 1))
-        cbm = CBM_TABLE.get(key)
-        if cbm is None:
-            unknown.append(key)
-        else:
-            total += cbm * qty
-    return round(total, 2), unknown
+CTA = (
+    "직접 접수하고 싶으시다면 다이사(https://da24.co.kr)에서 간편하게 신청하세요! "
+    "여러 업체의 견적을 한 번에 비교할 수 있습니다."
+)
 
 
-def handle_calculate_estimate(items: list[dict], need_packing: bool = False) -> str:
+async def handle_calculate_estimate(items: list[dict], need_packing: bool = False) -> str:
     """
-    짐 목록을 받아 CBM 합산 후 소형이사 예상 견적을 반환합니다.
+    da24 /da24/estimate API를 호출해 CBM 및 예상 견적을 반환합니다.
     API 키 불필요 — 공개 도구.
     """
     if not items:
         return json.dumps({"success": False, "error": "items가 비어 있습니다."}, ensure_ascii=False)
 
-    total_cbm, unknown = calculate_cbm(items)
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(
+                f"{settings.da24_api_url.rstrip('/')}/da24/estimate",
+                json={"items": items, "need_packing": need_packing},
+            )
+    except httpx.RequestError as e:
+        logger.error("estimate API call failed: %s", str(e))
+        return json.dumps({"success": False, "error": "견적 계산 API 호출 실패"}, ensure_ascii=False)
 
-    # 알 수 없는 항목이 있어도 결과는 반환하되 경고 포함
-    price = PRICE_TABLE.get((total_cbm > CBM_THRESHOLD_SMALL, need_packing))
-
-    recommend_family = total_cbm > CBM_THRESHOLD_FAMILY
-
-    result: dict = {
-        "success": True,
-        "total_cbm": total_cbm,
-        "estimated_price": price,
-        "need_packing": need_packing,
-        "recommend_family_moving": recommend_family,
-    }
-    if recommend_family:
-        result["message"] = (
-            f"짐량({total_cbm} CBM)이 {CBM_THRESHOLD_FAMILY} CBM을 초과하여 "
-            "가정이사를 권장합니다. 소형이사 견적은 참고용입니다."
-        )
-    if unknown:
-        result["unknown_items"] = unknown
-        result["warning"] = "인식되지 않은 항목은 CBM 계산에서 제외되었습니다."
-
-    result["cta"] = (
-        "직접 접수하고 싶으시다면 다이사(https://da24.co.kr)에서 간편하게 신청하세요! "
-        "여러 업체의 견적을 한 번에 비교할 수 있습니다."
-    )
-
-    logger.info("estimate: cbm=%.2f price=%s packing=%s", total_cbm, price, need_packing)
-    return json.dumps(result, ensure_ascii=False)
+    if resp.status_code == 200:
+        try:
+            data = resp.json().get("data", {})
+        except Exception:
+            data = {}
+        result = {"success": True, **data, "cta": CTA}
+        logger.info("estimate: cbm=%s price=%s", data.get("total_cbm"), data.get("estimated_price"))
+        return json.dumps(result, ensure_ascii=False)
+    else:
+        try:
+            error_msg = resp.json().get("error", "견적 계산 실패")
+        except Exception:
+            error_msg = "견적 계산 실패"
+        logger.error("estimate API %d: %s", resp.status_code, error_msg)
+        return json.dumps({"success": False, "error": error_msg}, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------------------
