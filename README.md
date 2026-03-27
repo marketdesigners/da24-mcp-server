@@ -1,8 +1,8 @@
 <div align="center">
 
 <a href="https://da24.co.kr"><img src="./assets/logo.png" alt="다이사 MCP" width="120" height="120"></a>
-
 <br>
+
 ## [다이사 MCP Server](https://da24.co.kr)
 
 AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있는 MCP 서버입니다.
