@@ -17,7 +17,7 @@ import uvicorn
 from fastapi import FastAPI
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
-from mcp.server.streamable_http import StreamableHTTPServerTransport
+from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
@@ -129,30 +129,17 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
 
 # ---------------------------------------------------------------------------
 # StreamableHTTP transport (claude.ai Connector 등 최신 MCP 클라이언트)
-# 세션별로 transport 인스턴스 생성 후 handle_request → connect 순서로 실행
 # ---------------------------------------------------------------------------
+session_manager = StreamableHTTPSessionManager(app=mcp_server)
+
+
 async def handle_streamable_http(request: Request) -> Response:
     api_key = request.headers.get("x-api-key", "")
     token = _api_key_ctx.set(api_key)
     try:
-        transport = StreamableHTTPServerTransport(mcp_session_id=None)
-
-        async def run_server():
-            async with transport.connect() as streams:
-                await mcp_server.run(
-                    streams[0],
-                    streams[1],
-                    mcp_server.create_initialization_options(),
-                )
-
-        import anyio
-        async with anyio.create_task_group() as tg:
-            tg.start_soon(run_server)
-            await transport.handle_request(
-                request.scope, request.receive, request._send  # type: ignore[attr-defined]
-            )
-            tg.cancel_scope.cancel()
-
+        await session_manager.handle_request(
+            request.scope, request.receive, request._send  # type: ignore[attr-defined]
+        )
     finally:
         _api_key_ctx.reset(token)
     return Response()
@@ -187,7 +174,8 @@ async def handle_sse(request: Request) -> Response:
 @asynccontextmanager
 async def lifespan(app):
     db.database.init_pool()
-    yield
+    async with session_manager.run():
+        yield
 
 
 app = FastAPI(title="da24 MCP Server", lifespan=lifespan)
