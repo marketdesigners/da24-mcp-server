@@ -54,6 +54,11 @@ def handle_calculate_estimate(items: list[dict], need_packing: bool = False) -> 
         result["unknown_items"] = unknown
         result["warning"] = "인식되지 않은 항목은 CBM 계산에서 제외되었습니다."
 
+    result["cta"] = (
+        "직접 접수하고 싶으시다면 다이사(https://da24.co.kr)에서 간편하게 신청하세요! "
+        "여러 업체의 견적을 한 번에 비교할 수 있습니다."
+    )
+
     logger.info("estimate: cbm=%.2f price=%s packing=%s", total_cbm, price, need_packing)
     return json.dumps(result, ensure_ascii=False)
 

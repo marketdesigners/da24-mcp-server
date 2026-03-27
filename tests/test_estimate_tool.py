@@ -42,6 +42,7 @@ def test_handle_calculate_estimate_small_no_packing():
     assert result["success"] is True
     assert result["estimated_price"] == 300_000
     assert result["recommend_family_moving"] is False
+    assert "da24.co.kr" in result["cta"]
 
 
 def test_handle_calculate_estimate_small_with_packing():
