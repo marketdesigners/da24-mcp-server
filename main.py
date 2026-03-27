@@ -11,15 +11,19 @@ Architecture:
 
 import contextvars
 import logging
+from contextlib import asynccontextmanager
 
 import mcp.types as types
 import uvicorn
 from fastapi import FastAPI
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
+from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.routing import Mount, Route
+
+import db.database
 
 from admin.api import router as admin_router
 from config import settings
@@ -143,7 +147,12 @@ async def handle_sse(request: Request) -> Response:
 # ---------------------------------------------------------------------------
 # FastAPI app assembly
 # ---------------------------------------------------------------------------
-app = FastAPI(title="da24 MCP Server")
+@asynccontextmanager
+async def lifespan(app):
+    db.database.init_pool()
+    yield
+
+app = FastAPI(title="da24 MCP Server", lifespan=lifespan)
 
 # Mount admin router
 app.include_router(admin_router)
@@ -154,7 +163,7 @@ mcp_routes = [
     Mount("/messages/", app=sse_transport.handle_post_message),
 ]
 
-app.mount("/", app=__import__("starlette.applications", fromlist=["Starlette"]).Starlette(routes=mcp_routes))
+app.mount("/", app=Starlette(routes=mcp_routes))
 
 # ---------------------------------------------------------------------------
 # Entry point
