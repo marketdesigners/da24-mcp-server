@@ -45,15 +45,20 @@ async def handle_create_inquiry(
     tel: str,
     moving_type: str,
     moving_date: str,
-    sido: str = "",
-    gugun: str = "",
-    sido2: str = "",
-    gugun2: str = "",
+    sido: str,
+    gugun: str,
+    sido2: str,
+    gugun2: str,
     email: str = "",
     memo: str = "",
     mkt_agree: bool = False,
 ) -> str:
-    # 1. API 키 검증
+    # 1. 필수 필드 검증
+    missing = [f for f, v in [("sido", sido), ("gugun", gugun), ("sido2", sido2), ("gugun2", gugun2)] if not v]
+    if missing:
+        return json.dumps({"success": False, "error": f"필수 항목 누락: {', '.join(missing)}"})
+
+    # 2. API 키 검증
     conn = get_connection()
     try:
         repo = ApiKeyRepository(conn)
