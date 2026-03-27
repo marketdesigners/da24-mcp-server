@@ -26,7 +26,7 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 
 1. [claude.ai](https://claude.ai)에서 **Settings** → **Connectors** 이동
 2. **Add custom connector** 클릭
-3. 원격 MCP 서버 URL 입력: `https://mcp.wematch.com`
+3. 원격 MCP 서버 URL 입력: `https://mcp.wematch.com/mcp`
 4. *(이사 접수 기능 사용 시)* **API Key** 헤더 추가: `X-API-Key: {발급받은 키}`
 5. **Add** 클릭 후 채팅창에서 **+** → **Connectors** → 토글 활성화
 
@@ -74,7 +74,7 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 {
   "mcpServers": {
     "da24": {
-      "url": "https://mcp.wematch.com/sse",
+      "url": "https://mcp.wematch.com/mcp",
       "headers": {
         "X-API-Key": "발급받은 키"
       }

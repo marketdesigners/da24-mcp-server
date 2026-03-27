@@ -3,10 +3,9 @@ da24 MCP Server — main entry point.
 
 Architecture:
 - FastAPI app with admin router at /admin
-- MCP SSE transport mounted at /sse (GET) and /messages/ (POST)
-- X-API-Key header is extracted at SSE connection time and stored in a
-  contextvars.ContextVar so the call_tool handler can read it without
-  the MCP client having to send it as a tool argument.
+- MCP StreamableHTTP transport at /mcp  (claude.ai Connector 등 최신 클라이언트)
+- MCP SSE transport at /sse + /messages/ (Claude Code 등 레거시 클라이언트)
+- X-API-Key header는 각 transport 연결 시 contextvars.ContextVar에 저장
 """
 
 import contextvars
@@ -18,6 +17,7 @@ import uvicorn
 from fastapi import FastAPI
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
+from mcp.server.streamable_http import StreamableHTTPServerTransport
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
@@ -34,8 +34,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# ContextVar: stores the X-API-Key for the current SSE connection/request.
-# Set in handle_sse() before the MCP session starts; read in call_tool handler.
+# ContextVar: X-API-Key per connection
 # ---------------------------------------------------------------------------
 _api_key_ctx: contextvars.ContextVar[str] = contextvars.ContextVar(
     "_api_key_ctx", default=""
@@ -55,7 +54,7 @@ async def list_tools() -> list[types.Tool]:
             name="create_inquiry",
             description=(
                 "이사 견적 문의를 da24 플랫폼에 접수합니다. "
-                "필수: name, tel, moving_type, moving_date. "
+                "필수: name, tel, moving_type, moving_date, sido, gugun, sido2, gugun2. "
                 "moving_type: '가정이사'|'사무실이사'|'보관이사'|'용달이사'. "
                 "moving_date: 'YYYY-MM-DD' 또는 'undecided'."
             ),
@@ -124,19 +123,47 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         email=arguments.get("email", ""),
         memo=arguments.get("memo", ""),
         mkt_agree=arguments.get("mkt_agree", False),
-    )  # sido/gugun/sido2/gugun2 누락 시 handle_create_inquiry 내부에서 검증 후 에러 반환
+    )
     return [types.TextContent(type="text", text=result)]
 
 
 # ---------------------------------------------------------------------------
-# SSE transport + Starlette routes
+# StreamableHTTP transport (claude.ai Connector 등 최신 MCP 클라이언트)
+# 세션별로 transport 인스턴스 생성 후 handle_request → connect 순서로 실행
+# ---------------------------------------------------------------------------
+async def handle_streamable_http(request: Request) -> Response:
+    api_key = request.headers.get("x-api-key", "")
+    token = _api_key_ctx.set(api_key)
+    try:
+        transport = StreamableHTTPServerTransport(mcp_session_id=None)
+
+        async def run_server():
+            async with transport.connect() as streams:
+                await mcp_server.run(
+                    streams[0],
+                    streams[1],
+                    mcp_server.create_initialization_options(),
+                )
+
+        import anyio
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(run_server)
+            await transport.handle_request(
+                request.scope, request.receive, request._send  # type: ignore[attr-defined]
+            )
+            tg.cancel_scope.cancel()
+    finally:
+        _api_key_ctx.reset(token)
+    return Response()
+
+
+# ---------------------------------------------------------------------------
+# SSE transport (Claude Code 등 레거시 MCP 클라이언트)
 # ---------------------------------------------------------------------------
 sse_transport = SseServerTransport("/messages/")
 
 
 async def handle_sse(request: Request) -> Response:
-    """SSE endpoint: extract X-API-Key from headers, store in ContextVar,
-    then run the MCP session."""
     api_key = request.headers.get("x-api-key", "")
     token = _api_key_ctx.set(api_key)
     try:
@@ -161,13 +188,13 @@ async def lifespan(app):
     db.database.init_pool()
     yield
 
+
 app = FastAPI(title="da24 MCP Server", lifespan=lifespan)
 
-# Mount admin router
 app.include_router(admin_router)
 
-# Mount MCP SSE routes as a sub-application
 mcp_routes = [
+    Route("/mcp", endpoint=handle_streamable_http, methods=["GET", "POST"]),
     Route("/sse", endpoint=handle_sse, methods=["GET"]),
     Mount("/messages/", app=sse_transport.handle_post_message),
 ]
