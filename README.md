@@ -1,11 +1,11 @@
 <div align="center">
 
-<img src="./assets/logo.png" alt="다이사 MCP" width="120" height="120">
+<a href="https://da24.co.kr"><img src="./assets/logo.png" alt="다이사 MCP" width="120" height="120"></a>
 
 <br>
 <br>
 
-## 다이사 MCP Server
+## [다이사 MCP Server](https://da24.co.kr)
 
 AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있는 MCP 서버입니다.
 
@@ -171,10 +171,10 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 | `tel` | string | ✅ | 연락처 (예: 010-1234-5678) |
 | `moving_type` | string | ✅ | 이사종류: `가정이사` \| `사무실이사` \| `보관이사` \| `용달이사` |
 | `moving_date` | string | ✅ | 이사일자 (YYYY-MM-DD) 또는 `undecided` (미정) |
-| `sido` | string | | 출발지 시/도 |
-| `gugun` | string | | 출발지 구/군 |
-| `sido2` | string | | 도착지 시/도 |
-| `gugun2` | string | | 도착지 구/군 |
+| `sido` | string | ✅ | 출발지 시/도 |
+| `gugun` | string | ✅ | 출발지 구/군 |
+| `sido2` | string | ✅ | 도착지 시/도 |
+| `gugun2` | string | ✅ | 도착지 구/군 |
 | `email` | string | | 이메일 |
 | `memo` | string | | 메모 |
 | `mkt_agree` | boolean | | 마케팅 수신 동의 (기본값: false) |
@@ -188,16 +188,6 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 // 실패 (잘못된 API 키)
 { "success": false, "error": "Invalid or inactive API key" }
 ```
-
-<br>
-
----
-
-## 서비스 레퍼런스
-
-| 서비스 | 설명 |
-|-------|------|
-| [다이사](https://da24.co.kr) | 이사 전문 플랫폼 · 여러 업체 견적 한 번에 비교 |
 
 <br>
 
