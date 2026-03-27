@@ -1,0 +1,83 @@
+on:
+  push:
+    branches:
+      - master
+      - feature
+
+name: Docker Image build & k8s resources.yaml update
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+
+    - name: Set Dev env variables
+      if: endsWith(github.ref, '/feature')
+      run: |
+        echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+        echo "DESTINATION=dev/da24-mcp" >> $GITHUB_ENV
+
+    - name: Set Prod env variables
+      if: endsWith(github.ref, '/master')
+      run: |
+        echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+        echo "DESTINATION=prod/da24-mcp" >> $GITHUB_ENV
+
+    - name: Set commit message
+      env:
+        GITHUB_SHA: ${{ github.sha }}
+      run: |
+        echo "COMMIT_MSG=Update from https://github.com/marketdesigners/da24-mcp-server/commit/$GITHUB_SHA" >> $GITHUB_ENV
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_VAL }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_VAL }}
+        aws-region: ap-northeast-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$ENVIRONMENT-$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$ENVIRONMENT-$IMAGE_TAG
+        echo "IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$ENVIRONMENT-$IMAGE_TAG" >> $GITHUB_ENV
+
+    - name: Git config
+      run: |
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+
+    - name: Check out k8 repo
+      uses: actions/checkout@master
+      with:
+        repository: marketdesigners/k8
+        token: ${{ secrets.GTOKEN }}
+
+    - name: chmod repo destination
+      run: |
+        chmod +x $DESTINATION
+        ls
+
+    - name: Update image tag in k8 repo
+      env:
+        GITHUB_SHA: ${{ github.sha }}
+      run: |
+        sed -i -e "s@${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:.*@${{ env.IMAGE }}@g" $DESTINATION/resources.yaml
+        git add .
+        git commit -m "$COMMIT_MSG"
+        git push -f --set-upstream origin main
