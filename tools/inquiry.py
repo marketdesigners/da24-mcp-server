@@ -74,7 +74,7 @@ async def handle_create_inquiry(
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.post(
-                f"{settings.da24_api_url.rstrip('/')}/move/inquiry",
+                f"{settings.da24_api_url.rstrip('/')}/da24/inquiry",
                 json=payload,
             )
     except httpx.RequestError as e:
