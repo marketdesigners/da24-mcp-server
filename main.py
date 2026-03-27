@@ -152,6 +152,7 @@ async def handle_streamable_http(request: Request) -> Response:
                 request.scope, request.receive, request._send  # type: ignore[attr-defined]
             )
             tg.cancel_scope.cancel()
+
     finally:
         _api_key_ctx.reset(token)
     return Response()
@@ -194,7 +195,7 @@ app = FastAPI(title="da24 MCP Server", lifespan=lifespan)
 app.include_router(admin_router)
 
 mcp_routes = [
-    Route("/mcp", endpoint=handle_streamable_http, methods=["GET", "POST"]),
+    Route("/", endpoint=handle_streamable_http, methods=["GET", "POST"]),
     Route("/sse", endpoint=handle_sse, methods=["GET"]),
     Mount("/messages/", app=sse_transport.handle_post_message),
 ]
