@@ -28,6 +28,7 @@ import db.database
 from admin.api import router as admin_router
 from config import settings
 from tools.inquiry import handle_create_inquiry
+from tools.estimate import handle_calculate_estimate, ESTIMATE_TOOL_SCHEMA
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,6 +50,7 @@ mcp_server = Server("da24-mcp-server")
 @mcp_server.list_tools()
 async def list_tools() -> list[types.Tool]:
     return [
+        types.Tool(**ESTIMATE_TOOL_SCHEMA),
         types.Tool(
             name="create_inquiry",
             description=(
@@ -90,6 +92,13 @@ async def list_tools() -> list[types.Tool]:
 
 @mcp_server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
+    if name == "calculate_estimate":
+        result = handle_calculate_estimate(
+            items=arguments.get("items", []),
+            need_packing=arguments.get("need_packing", False),
+        )
+        return [types.TextContent(type="text", text=result)]
+
     if name != "create_inquiry":
         raise ValueError(f"Unknown tool: {name}")
 
