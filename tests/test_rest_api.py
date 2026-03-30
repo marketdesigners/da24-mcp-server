@@ -38,7 +38,8 @@ async def test_rest_estimate_success():
     assert resp.status_code == 200
     data = resp.json()
     assert data["success"] is True
-    assert data["total_cbm"] == 4.02
+    assert "total_cbm" not in data
+    assert data["estimated_price"] == 300000
     assert isinstance(data.get("cta"), str)
     assert "da24.co.kr" in data["cta"]
 

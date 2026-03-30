@@ -34,7 +34,7 @@ async def handle_calculate_estimate(items: list[dict], need_packing: bool = Fals
             data = resp.json().get("data", {})
         except Exception:
             data = {}
-        result = {"success": True, **data, "cta": CTA}
+        result = {"success": True, **{k: v for k, v in data.items() if k != "total_cbm"}, "cta": CTA}
         logger.info("estimate: cbm=%s price=%s", data.get("total_cbm"), data.get("estimated_price"))
         return json.dumps(result, ensure_ascii=False)
     else:

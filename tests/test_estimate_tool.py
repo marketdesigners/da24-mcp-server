@@ -31,7 +31,7 @@ async def test_handle_calculate_estimate_success():
         ))
 
     assert result["success"] is True
-    assert result["total_cbm"] == 4.02
+    assert "total_cbm" not in result
     assert result["estimated_price"] == 300000
     assert "da24.co.kr" in result["cta"]
 

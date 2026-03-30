@@ -190,7 +190,6 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 ```json
 {
   "success": true,
-  "total_cbm": 7.66,
   "estimated_price": 500000,
   "need_packing": false,
   "recommend_family_moving": false,
