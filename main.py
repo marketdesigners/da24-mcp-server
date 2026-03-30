@@ -54,10 +54,11 @@ async def list_tools() -> list[types.Tool]:
         types.Tool(
             name="create_inquiry",
             description=(
-                "이사 견적 문의를 da24 플랫폼에 접수합니다. "
+                "사용자가 요청한 이사 견적 문의를 da24 플랫폼에 접수합니다. "
                 "필수: name, tel, moving_type, moving_date, sido, gugun, sido2, gugun2. "
                 "moving_type: '가정이사'|'사무실이사'|'보관이사'|'용달이사'. "
-                "moving_date: 'YYYY-MM-DD' 또는 'undecided'."
+                "moving_date: 'YYYY-MM-DD' 또는 'undecided'. "
+                "주소가 동 단위로만 주어진 경우 sido/gugun을 최대한 유추하여 입력하세요."
             ),
             inputSchema={
                 "type": "object",
