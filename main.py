@@ -56,7 +56,7 @@ async def list_tools() -> list[types.Tool]:
             description=(
                 "사용자가 요청한 이사 견적 문의를 da24 플랫폼에 접수합니다. "
                 "필수: name, tel, moving_type, moving_date, sido, gugun, sido2, gugun2. "
-                "moving_type: '가정이사'|'사무실이사'|'보관이사'|'용달이사'. "
+                "moving_type: '가정이사'|'원룸이사'|'사무실이사'|'보관이사'|'용달이사'. "
                 "moving_date: 'YYYY-MM-DD' 또는 'undecided'. "
                 "주소가 동 단위로만 주어진 경우 sido/gugun을 최대한 유추하여 입력하세요."
             ),
@@ -67,7 +67,7 @@ async def list_tools() -> list[types.Tool]:
                     "tel": {"type": "string", "description": "연락처 (숫자, 하이픈 허용)"},
                     "moving_type": {
                         "type": "string",
-                        "enum": ["가정이사", "사무실이사", "보관이사", "용달이사"],
+                        "enum": ["가정이사", "원룸이사", "사무실이사", "보관이사", "용달이사"],
                         "description": "이사 유형",
                     },
                     "moving_date": {

@@ -8,6 +8,15 @@ from db.models import ApiKeyRepository
 logger = logging.getLogger(__name__)
 
 
+MOVING_TYPE_MAP = {
+    "가정이사": "가정",
+    "원룸이사": "원룸",
+    "사무실이사": "사무실",
+    "보관이사": "가정",
+    "용달이사": "원룸",
+}
+
+
 def build_da24_payload(
     name: str,
     tel: str,
@@ -22,10 +31,11 @@ def build_da24_payload(
     mkt_agree: bool = False,
 ) -> dict:
     is_undecided = moving_date == "undecided"
+    mapped_moving_type = MOVING_TYPE_MAP.get(moving_type, moving_type)
     return {
         "name": name,
         "tel": tel,
-        "moving_type": moving_type,
+        "moving_type": mapped_moving_type,
         "moving_date": "" if is_undecided else moving_date,
         "is_moving_date_undecided": is_undecided,
         "sido": sido or "",
