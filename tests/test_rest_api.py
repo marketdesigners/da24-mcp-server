@@ -33,10 +33,13 @@ async def test_rest_estimate_success():
                 json={"items": [{"item": "침대:퀸", "quantity": 1}], "need_packing": False},
             )
 
+    mock_client.post.assert_called_once()
+
     assert resp.status_code == 200
     data = resp.json()
     assert data["success"] is True
     assert data["total_cbm"] == 4.02
+    assert isinstance(data.get("cta"), str)
     assert "da24.co.kr" in data["cta"]
 
 
@@ -106,7 +109,7 @@ async def test_rest_inquiry_invalid_api_key():
     assert resp.status_code == 200
     data = resp.json()
     assert data["success"] is False
-    assert "Invalid" in data["error"]
+    assert "Invalid or inactive API key" in data["error"]
 
 
 @pytest.mark.asyncio
@@ -148,6 +151,8 @@ async def test_rest_inquiry_success():
                 },
                 headers={"X-API-Key": "valid-key"},
             )
+
+    mock_client.post.assert_called_once()
 
     assert resp.status_code == 200
     data = resp.json()
