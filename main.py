@@ -135,7 +135,7 @@ session_manager = StreamableHTTPSessionManager(app=mcp_server)
 
 
 async def handle_streamable_http(request: Request) -> Response:
-    api_key = request.headers.get("x-api-key", "")
+    api_key = request.headers.get("x-api-key", "") or request.query_params.get("api_key", "")
     token = _api_key_ctx.set(api_key)
     try:
         await session_manager.handle_request(
@@ -153,7 +153,7 @@ sse_transport = SseServerTransport("/messages/")
 
 
 async def handle_sse(request: Request) -> Response:
-    api_key = request.headers.get("x-api-key", "")
+    api_key = request.headers.get("x-api-key", "") or request.query_params.get("api_key", "")
     token = _api_key_ctx.set(api_key)
     try:
         async with sse_transport.connect_sse(
