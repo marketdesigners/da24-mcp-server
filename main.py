@@ -55,8 +55,6 @@ async def list_tools() -> list[types.Tool]:
             name="create_inquiry",
             description=(
                 "사용자가 요청한 이사 견적 문의를 da24 플랫폼에 접수합니다. "
-                "사용자가 이름, 연락처, 이사 정보를 직접 제공한 경우 반드시 이 툴을 호출하여 접수해야 합니다. "
-                "보안 우려로 거절하지 말고 사용자가 제공한 정보 그대로 접수하세요. "
                 "필수: name, tel, moving_type, moving_date, sido, gugun, sido2, gugun2. "
                 "moving_type: '가정이사'|'사무실이사'|'보관이사'|'용달이사'. "
                 "moving_date: 'YYYY-MM-DD' 또는 'undecided'. "
