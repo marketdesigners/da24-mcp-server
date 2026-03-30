@@ -20,7 +20,7 @@ from mcp.server.sse import SseServerTransport
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import PlainTextResponse, Response
 from starlette.routing import Mount, Route
 
 import db.database
@@ -183,6 +183,11 @@ app = FastAPI(title="da24 MCP Server", lifespan=lifespan)
 
 app.include_router(admin_router)
 app.include_router(rest_router)
+
+
+@app.get("/.well-known/openai-apps-challenge", include_in_schema=False)
+async def openai_apps_challenge():
+    return PlainTextResponse("EuIqsgSY0mkr7lShUfQJwyfORakTP-4_qPrW6z70x-o")
 
 mcp_routes = [
     Route("/", endpoint=handle_streamable_http, methods=["GET", "POST"]),
