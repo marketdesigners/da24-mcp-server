@@ -26,6 +26,7 @@ from starlette.routing import Mount, Route
 import db.database
 
 from admin.api import router as admin_router
+from rest.api import router as rest_router
 from config import settings
 from tools.inquiry import handle_create_inquiry
 from tools.estimate import handle_calculate_estimate, ESTIMATE_TOOL_SCHEMA
@@ -181,6 +182,7 @@ async def lifespan(app):
 app = FastAPI(title="da24 MCP Server", lifespan=lifespan)
 
 app.include_router(admin_router)
+app.include_router(rest_router)
 
 mcp_routes = [
     Route("/", endpoint=handle_streamable_http, methods=["GET", "POST"]),

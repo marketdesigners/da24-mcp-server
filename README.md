@@ -47,6 +47,56 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 
 <br>
 
+### ![ChatGPT](https://img.shields.io/badge/ChatGPT-74AA9C?logo=openai&logoColor=white)
+
+> GPT-4o, GPT-4 등 유료 플랜 필요 · My GPTs에서 커스텀 GPT 생성
+
+1. [chat.openai.com](https://chat.openai.com)에서 **Explore GPTs** → **Create** 이동
+2. **Configure** 탭 → **Actions** → **Create new action** 클릭
+3. **Import from URL** 클릭 후 입력: `https://mcp.wematch.com/openapi.json`
+4. *(이사 접수 기능 사용 시)* **Authentication** → **API Key** 선택
+   - Auth Type: `Custom`
+   - Header name: `X-API-Key`
+   - API Key: `{발급받은 키}`
+5. **Save** 후 GPT 저장
+
+> 견적 계산만 사용할 경우 Authentication은 `None`으로 설정해도 됩니다.
+
+<br>
+<br>
+
+### ![Grok](https://img.shields.io/badge/Grok-000000?logo=x&logoColor=white)
+
+> Grok 3 이상 · xAI 계정 필요
+
+**Grok.com (웹):**
+
+1. [grok.com](https://grok.com) 접속 후 설정에서 MCP 서버 추가
+2. URL 입력: `https://mcp.wematch.com`
+3. *(이사 접수 기능 사용 시)* **API Key** 헤더 추가: `X-API-Key: {발급받은 키}`
+
+**Grok Desktop:**
+
+`~/.grok/config.json` 또는 앱 설정에 추가:
+
+```json
+{
+  "mcpServers": {
+    "da24": {
+      "url": "https://mcp.wematch.com/sse",
+      "headers": {
+        "X-API-Key": "발급받은 키"
+      }
+    }
+  }
+}
+```
+
+> 견적 계산만 사용할 경우 `X-API-Key` 헤더는 생략해도 됩니다.
+
+<br>
+<br>
+
 ### ![Claude Code](https://img.shields.io/badge/Claude_Code-D4A27F?logo=anthropic&logoColor=white)
 
 `~/.claude.json` 또는 프로젝트 `.mcp.json`에 추가:
@@ -186,7 +236,7 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 
 ## 기술 스택
 
-Python 3.11 · FastAPI · MCP SDK · httpx
+Python 3.11 · FastAPI · MCP SDK · httpx · OpenAPI
 
 <br>
 
