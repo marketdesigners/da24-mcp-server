@@ -17,6 +17,15 @@ MOVING_TYPE_MAP = {
 }
 
 
+def split_tel(tel: str) -> tuple[str, str, str]:
+    parts = tel.replace("-", "").replace(" ", "")
+    if len(parts) == 11:  # 010-XXXX-XXXX
+        return parts[0:3], parts[3:7], parts[7:11]
+    elif len(parts) == 10:  # 02-XXXX-XXXX
+        return parts[0:2], parts[2:6], parts[6:10]
+    return parts, "", ""
+
+
 def build_da24_payload(
     name: str,
     tel: str,
@@ -32,9 +41,12 @@ def build_da24_payload(
 ) -> dict:
     is_undecided = moving_date == "undecided"
     mapped_moving_type = MOVING_TYPE_MAP.get(moving_type, moving_type)
+    phone1, phone2, phone3 = split_tel(tel)
     return {
         "name": name,
-        "tel": tel,
+        "phone1": phone1,
+        "phone2": phone2,
+        "phone3": phone3,
         "moving_type": mapped_moving_type,
         "moving_date": "" if is_undecided else moving_date,
         "is_moving_date_undecided": is_undecided,
