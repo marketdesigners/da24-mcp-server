@@ -41,9 +41,12 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 
 1. [claude.ai](https://claude.ai)에서 **Settings** → **Connectors** 이동
 2. **Add custom connector** 클릭
-3. 원격 MCP 서버 URL 입력: `https://mcp.wematch.com/sse`
-4. *(이사 접수 기능 사용 시)* **API Key** 헤더 추가: `X-API-Key: {발급받은 키}`
-5. **Add** 클릭 후 채팅창에서 **+** → **Connectors** → 토글 활성화
+3. 원격 MCP 서버 URL 입력:
+   - 견적 계산만: `https://mcp.wematch.com/sse`
+   - 이사 접수 포함: `https://mcp.wematch.com/sse?api_key={발급받은 키}`
+4. **Add** 클릭 후 채팅창에서 **+** → **Connectors** → 토글 활성화
+
+> API 키 발급 문의: [lonnie@da24.co.kr](mailto:lonnie@da24.co.kr)
 
 참고: [Claude Remote MCP 가이드](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)
 
@@ -74,8 +77,9 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 **Grok.com (웹):**
 
 1. [grok.com](https://grok.com) 접속 후 설정에서 MCP 서버 추가
-2. URL 입력: `https://mcp.wematch.com`
-3. *(이사 접수 기능 사용 시)* **API Key** 헤더 추가: `X-API-Key: {발급받은 키}`
+2. URL 입력:
+   - 견적 계산만: `https://mcp.wematch.com`
+   - 이사 접수 포함: `https://mcp.wematch.com?api_key={발급받은 키}`
 
 **Grok Desktop:**
 
@@ -85,16 +89,13 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 {
   "mcpServers": {
     "da24": {
-      "url": "https://mcp.wematch.com/sse",
-      "headers": {
-        "X-API-Key": "발급받은 키"
-      }
+      "url": "https://mcp.wematch.com/sse?api_key={발급받은 키}"
     }
   }
 }
 ```
 
-> 견적 계산만 사용할 경우 `X-API-Key` 헤더는 생략해도 됩니다.
+> 견적 계산만 사용할 경우 `?api_key=...` 파라미터는 생략해도 됩니다.
 
 <br>
 <br>
@@ -107,16 +108,13 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 {
   "mcpServers": {
     "da24": {
-      "httpUrl": "https://mcp.wematch.com/sse",
-      "headers": {
-        "X-API-Key": "발급받은 키"
-      }
+      "httpUrl": "https://mcp.wematch.com/sse?api_key={발급받은 키}"
     }
   }
 }
 ```
 
-> 견적 계산만 사용할 경우 `X-API-Key` 헤더는 생략해도 됩니다.
+> 견적 계산만 사용할 경우 `?api_key=...` 파라미터는 생략해도 됩니다.
 
 <br>
 
@@ -128,16 +126,14 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 {
   "mcpServers": {
     "da24": {
-      "url": "https://mcp.wematch.com/sse",
-      "headers": {
-        "X-API-Key": "발급받은 키"
-      }
+      "type": "sse",
+      "url": "https://mcp.wematch.com/sse?api_key={발급받은 키}"
     }
   }
 }
 ```
 
-> 견적 계산만 사용할 경우 `X-API-Key` 헤더는 생략해도 됩니다.
+> 견적 계산만 사용할 경우 `?api_key=...` 파라미터는 생략해도 됩니다.
 
 <br>
 
@@ -147,10 +143,7 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 {
   "mcpServers": {
     "da24": {
-      "url": "https://mcp.wematch.com",
-      "headers": {
-        "X-API-Key": "발급받은 키"
-      }
+      "url": "https://mcp.wematch.com/sse?api_key={발급받은 키}"
     }
   }
 }
