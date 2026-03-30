@@ -97,6 +97,27 @@ AI 에이전트에서 이사 견적 계산과 접수를 바로 처리할 수 있
 <br>
 <br>
 
+### ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-4285F4?logo=google&logoColor=white)
+
+`~/.gemini/settings.json`에 추가:
+
+```json
+{
+  "mcpServers": {
+    "da24": {
+      "httpUrl": "https://mcp.wematch.com/sse",
+      "headers": {
+        "X-API-Key": "발급받은 키"
+      }
+    }
+  }
+}
+```
+
+> 견적 계산만 사용할 경우 `X-API-Key` 헤더는 생략해도 됩니다.
+
+<br>
+
 ### ![Claude Code](https://img.shields.io/badge/Claude_Code-D4A27F?logo=anthropic&logoColor=white)
 
 `~/.claude.json` 또는 프로젝트 `.mcp.json`에 추가:
