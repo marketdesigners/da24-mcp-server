@@ -2,7 +2,7 @@
 import json
 import logging
 
-from fastapi import APIRouter, HTTPException, Security
+from fastapi import APIRouter, HTTPException, Security, status
 from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
@@ -59,7 +59,7 @@ async def inquiry(
     api_key: str = Security(api_key_header),
 ):
     if not api_key:
-        raise HTTPException(status_code=401, detail="X-API-Key header missing")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="X-API-Key header missing")
     raw = await handle_create_inquiry(
         api_key=api_key,
         name=body.name,
