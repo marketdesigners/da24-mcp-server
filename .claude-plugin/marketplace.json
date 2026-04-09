@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "da24",
+  "description": "다이사 MCP 플러그인 - 이사 견적 계산 및 접수",
+  "owner": {
+    "name": "marketdesigners",
+    "email": "lonnie@da24.co.kr"
+  },
+  "plugins": [
+    {
+      "name": "da24",
+      "description": "다이사 이사 견적 계산 및 접수. 사용자가 이사 견적을 묻거나 접수를 요청할 때 사용.",
+      "category": "productivity",
+      "source": "./",
+      "homepage": "https://github.com/marketdesigners/da24-mcp-server"
+    }
+  ]
+}

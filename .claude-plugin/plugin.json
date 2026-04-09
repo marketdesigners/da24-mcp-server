@@ -1,0 +1,8 @@
+{
+  "name": "da24",
+  "description": "다이사 이사 견적 계산 및 접수. 사용자가 이사 견적을 묻거나 접수를 요청할 때 사용.",
+  "author": {
+    "name": "marketdesigners",
+    "email": "lonnie@da24.co.kr"
+  }
+}
