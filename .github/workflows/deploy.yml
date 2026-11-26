@@ -3,6 +3,7 @@ on:
     branches:
       - master
       - feature
+      - staging
 
 name: Docker Image build & k8s resources.yaml update
 
@@ -22,6 +23,12 @@ jobs:
       run: |
         echo "ENVIRONMENT=dev" >> $GITHUB_ENV
         echo "DESTINATION=dev/da24-mcp" >> $GITHUB_ENV
+
+    - name: Set Staging env variables
+      if: endsWith(github.ref, '/staging')
+      run: |
+        echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+        echo "DESTINATION=staging/da24-mcp" >> $GITHUB_ENV
 
     - name: Set Prod env variables
       if: endsWith(github.ref, '/master')
